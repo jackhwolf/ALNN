@@ -6,3 +6,4 @@ Untitled.ipynb
 **/*.tfstate
 **/*.tfstate.backup
 **/*.out
+**/Results

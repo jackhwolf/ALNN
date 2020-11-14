@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = [18, 14]
 import numpy as np   
 import time
+from collections import OrderedDict
 import os
+from torch import from_numpy
 from src.data import get_data
 from src.model import get_model
 
@@ -44,7 +46,8 @@ class Grapher:
 
     def get_interpolations(self):
         for i, o in self.result.loc[0]['output'].iterrows():
-            self.model.load_state_dict(o['state_dicts'])
+            sd = OrderedDict({k: from_numpy(v) for k, v in o['state_dicts'].items()})
+            self.model.load_state_dict(sd)
             x = self.data.x[o['labeled']]
             predy = self.model.predict(x).numpy()
             finex = self.data.finex
@@ -131,7 +134,7 @@ class Grapher2d(Grapher):
             ax[1].set_title("Scoring", fontsize=18)
             ax[2].set_title("Loss", fontsize=18)
             ax[0].scatter(finex[:,0], finex[:,1], c=finepredy, cmap='bwr')
-            ax[0].plot(x[:,0], predy[:,1], c="g", marker="s", fillstyle='none', mew=2)
+            ax[0].plot(x[:,0], x[:,1], c="g", marker="s", fillstyle='none', mew=2, linestyle='none')
             selection = o['selection_idx']
             if o['round_results'] is not None:
                 # ax[0].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)

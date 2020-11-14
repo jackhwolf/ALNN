@@ -3,6 +3,8 @@ import pandas as pd
 from pathlib import Path
 import boto3
 import io
+from botocore.exceptions import ClientError
+import time 
 
 def add_result(result):
 		return ResultsManager().add_result(result)
@@ -19,8 +21,11 @@ class ResultsManager:
 			}
 
 		def add_result(self, result):
+			print("local")
 			self.add_result_local(result)
+			print("zipped")
 			self.zipdir_local(result)
+			print("cloud")
 			self.add_result_cloud(result)
 
 		def add_result_local(self, result):
@@ -46,6 +51,7 @@ class ResultsManager:
 			main = self.download_main()
 			if main is not None:
 					main = pd.concat((main, result))
+					main.index = list(range(main.shape[0]))
 			else:
 					main = result
 			self.upload_main(main)
@@ -64,6 +70,8 @@ class ResultsManager:
 			anim_key = f"{ts}.mp4"
 			s3.upload_file(zip_fname, self.buckets['zipfiles'], zip_key)
 			s3.upload_file(anim_fname, self.buckets['animations'], anim_key)
+			self.make_public(self.buckets['zipfiles'], zip_key)
+			self.make_public(self.buckets['animations'], anim_key)
 			return zip_key, anim_key
 
 		def make_public(self, bucket, key):
@@ -87,9 +95,11 @@ class ResultsManager:
 
 		def upload_main(self, main):
 			s3 = self.s3client()
-			main_buf = io.StringIO()
-			main.to_pickle(main_buf)
-			main_buf.seek(0)
-			s3.upload_fileobj(main_buf, self.buckets['main'], self.main_key)
+			tmpfile = Path(f'/tmp/alnn_main_upload_{int(time.time())}')
+			tmpfile.touch()
+			tmpfilepath = str(tmpfile.resolve())
+			main.to_pickle(tmpfilepath)
+			s3.upload_file(tmpfilepath, self.buckets['main'], self.main_key)
+			tmpfile.unlink()
 			self.make_public(self.buckets['main'], self.main_key)
 			return

@@ -13,7 +13,7 @@ data_args:
 
 model_args:
   dimsin: 2
-  hidden_nodes: 15
+  hidden_nodes: [15, 30]
   dimsout: 1
   loss_function: MSELoss
   optimizer_function: Adam

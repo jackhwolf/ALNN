@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd 
 import os
 import time
+from collections import OrderedDict
 from distributed import worker_client
 from src.data import get_data
 from src.model import get_model
@@ -64,7 +65,7 @@ class Algorithm:
         self.log_['labeled'].append(self.data.labeled_mask.copy())
         self.log_['selection_idx'].append(selected_point.get('idx', -1))
         self.log_['loss'].append(learn['loss'])
-        self.log_['state_dicts'].append(learn['state_dict'])
+        self.log_['state_dicts'].append(OrderedDict({k: v.numpy() for k, v in learn['state_dict'].items()}))
         self.log_['round_results'].append(round_results)
         self.rd += 1
 
