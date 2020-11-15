@@ -99,7 +99,7 @@ class ResultsManager:
 			tmpfile = Path(f'/tmp/alnn_main_upload_{int(time.time())}')
 			tmpfile.touch()
 			tmpfilepath = str(tmpfile.resolve())
-			main.to_json(tmpfilepath, index=False)
+			main.to_json(tmpfilepath)
 			s3.upload_file(tmpfilepath, self.buckets['main'], self.main_key)
 			tmpfile.unlink()
 			self.make_public(self.buckets['main'], self.main_key)
