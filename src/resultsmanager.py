@@ -27,7 +27,7 @@ class ResultsManager:
 			result['local_graphs'] = [graphed]
 			self.add_result_local(result)
 			self.zipdir_local(result)
-			self.add_result_cloud(result)
+			# self.add_result_cloud(result)
 
 		def add_result_local(self, result):
 			if os.path.exists(self.main_fname):
