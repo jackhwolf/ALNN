@@ -15,7 +15,7 @@ class ResultsManager:
 		def __init__(self):
 			self.main_fname = '../Results/main.pkl'
 			os.makedirs('../Results', exist_ok=True)
-			self.main_key = 'main.pkl'
+			self.main_key = 'main.csv'
 			self.buckets = {
 					'main': 'alnn-main-bucket-8nyb87yn8',
 					'animations': 'alnn-animations-bucket-8nyb87yn8',
