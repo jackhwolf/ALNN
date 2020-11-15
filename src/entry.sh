@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 open_scheduler_window() {
     tmux rename-window -t 0 'scheduler'
     tmux send-keys -t 'scheduler' 'source venv/bin/activate' C-m 'dask-scheduler' C-m 
@@ -43,6 +45,7 @@ fi
 echo $addr
 
 SESSION="alnn-tmux"
+tmux kill-session -t $SESSION
 SESSIONEXISTS=$(tmux list-sessions | grep $SESSION)
 
 if [[ $SESSIONEXISTS = "" ]]

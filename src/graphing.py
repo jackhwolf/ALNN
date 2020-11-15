@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings("ignore")
 import matplotlib
 matplotlib.use('Agg')
 import numpy as np   
@@ -170,8 +172,7 @@ class Grapher2d(Grapher):
         cmap = 'Wistia'
         ax.scatter(self.data.x[:,0], self.data.x[:,1], c='grey', s=100, marker='x')
         cbar = ax.scatter(currx[:,0], currx[:,1], c=c, cmap=cmap, s=300, marker='s', alpha=0.85)
-        if key == 'loss':
-            fig.colorbar(cbar, ax=ax, fraction=0.046, pad=0.04)
+        fig_cbar = fig.colorbar(cbar, ax=ax, fraction=0.046, pad=0.04)
 
     def _ticks(self, ax):
         xt = np.linspace(-1, 1, self.data.w)

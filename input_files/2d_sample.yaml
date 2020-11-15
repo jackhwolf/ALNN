@@ -1,9 +1,4 @@
-experiment_name: complete_sample        
-
-# data: SampleData1d
-# data_args:
-#   n_threshold: 5
-#   threshold_length: 5
+experiment_name: 2d_sample
 
 data: SampleData2d                     
 data_args:
