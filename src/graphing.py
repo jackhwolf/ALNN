@@ -33,9 +33,9 @@ class Grapher:
     def make_title(self, selection=None):
         res = self.result.loc[0]['input']
         title = f"Name: {res['experiment_name']}"
-        data_title = [f"{k}:{v}" for k, v in res['data_args'].items()]
-        model_title = f"Architecture: ({res['model_args']['dimsin']}, {res['model_args']['hidden_nodes']}, {res['model_args']['dimsout']})"
+        data_title = [f"{k}={v}" for k, v in res['data_args'].items()]
         title += f"\nData: {res['data']}({', '.join(data_title)})"
+        model_title = f"Architecture: ({res['model_args']['dimsin']}, {res['model_args']['hidden_nodes']}, {res['model_args']['dimsout']})"
         title += f"\nArchitecture: {model_title}"
         title += f"\nLoss: {res['model_args']['loss_function']}"
         title += f"\nOptimizer: {res['model_args']['optimizer_function']}(LR={res['model_args']['lr']}, WD={res['model_args']['wd']})"
