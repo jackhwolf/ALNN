@@ -6,7 +6,7 @@ data_args:
   threshold_length: 5
 
 model_args:
-  dimsin: 2
+  dimsin: 1
   hidden_nodes: [15, 30]
   dimsout: 1
   loss_function: MSELoss
