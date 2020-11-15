@@ -88,7 +88,7 @@ class ResultsManager:
 				tmpfilepath = str(tmpfile.resolve())
 				with open(tmpfilepath, 'wb') as f:
 					s3.download_fileobj(self.buckets['main'], self.main_key, f)
-				main = pd.read_pickle(tmpfilepath)
+				main = pd.read_csv(tmpfilepath)
 				tmpfile.unlink()
 				return main
 			except ClientError:
@@ -99,7 +99,7 @@ class ResultsManager:
 			tmpfile = Path(f'/tmp/alnn_main_upload_{int(time.time())}')
 			tmpfile.touch()
 			tmpfilepath = str(tmpfile.resolve())
-			main.to_pickle(tmpfilepath)
+			main.to_csv(tmpfilepath)
 			s3.upload_file(tmpfilepath, self.buckets['main'], self.main_key)
 			tmpfile.unlink()
 			self.make_public(self.buckets['main'], self.main_key)
