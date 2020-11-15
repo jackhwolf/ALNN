@@ -28,6 +28,7 @@ class ResultsManager:
 			self.add_result_local(result)
 			self.zipdir_local(result)
 			self.add_result_cloud(result)
+			self.rm_results_local(result)
 
 		def add_result_local(self, result):
 			if os.path.exists(self.main_fname):
@@ -44,7 +45,15 @@ class ResultsManager:
 			rootdir = lg['local_graphs_root']
 			cmd = f"./cmds/zipdir.sh {rootdir}"
 			os.system(cmd)
-			return        
+			return  
+
+		def rm_results_local(self, result):
+			lg = result.loc[0]['local_graphs']
+			rootdir = lg['local_graphs_root']
+			cmd = f"./cmds/rmresultslocal.sh {rootdir}"
+			os.system(cmd)
+			return  
+
 
 		def add_result_cloud(self, result):
 			zk, ak = self.upload_zipfile_animation(result)
