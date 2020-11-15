@@ -89,7 +89,8 @@ class Grapher1d(Grapher):
             ax[0].set_title("Interpolation", fontsize=16)
             ax[1].set_title("Scoring", fontsize=16)
             ax[2].set_title("Loss", fontsize=16)
-            ax[0].scatter(x[:,0], predy, c=predy, cmap='bwr')
+            cbar = ax[0].scatter(x[:,0], predy, c=predy, cmap='bwr')
+            fig.colorbar(cbar, ax=ax[0], fraction=0.046, pad=0.04)
             ax[0].plot(finex[:,0], finepredy, c='grey')
             ax[0].tick_params(which='both', length=0)
             ax[0].set_ylim(-1.025, 1.025)
@@ -135,7 +136,8 @@ class Grapher2d(Grapher):
             ax[0].set_title("Interpolation", fontsize=16)
             ax[1].set_title("Scoring", fontsize=16)
             ax[2].set_title("Loss", fontsize=16)
-            ax[0].scatter(finex[:,0], finex[:,1], c=finepredy, cmap='bwr')
+            cbar = ax[0].scatter(finex[:,0], finex[:,1], c=finepredy, cmap='bwr')
+            fig.colorbar(cbar, ax=ax[0], fraction=0.046, pad=0.04)
             ax[0].plot(x[:,0], x[:,1], c="g", marker="s", fillstyle='none', mew=2, linestyle='none')
             selection = o['selection_idx']
             if o['round_results'] is not None:
