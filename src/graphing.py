@@ -1,14 +1,14 @@
-import warnings
-warnings.filterwarnings('ignore')
-import matplotlib.pyplot as plt
-plt.rcParams['figure.figsize'] = [18, 14]
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np   
-import time
+from uuid import uuid4
 from collections import OrderedDict
 import os
+import matplotlib.pyplot as plt
+plt.rcParams['figure.figsize'] = [16, 12]
 from torch import from_numpy
-from src.data import get_data
-from src.model import get_model
+from data import get_data
+from model import get_model
 
 def graph(result):
     data = result.loc[0]['input']['data']
@@ -24,7 +24,7 @@ class Grapher:
         self.result = result
         self.data = get_data(result.loc[0]['input'])
         self.model = get_model(result.loc[0]['input'])
-        self.root = f'Results/{int(time.time()*1000)}'
+        self.root = f'../Results/{uuid4().hex}'
         if not os.path.exists(self.root):
             os.makedirs(self.root)
         self.i = 0
@@ -60,6 +60,8 @@ class Grapher:
     def save(self, fig, ax):
         path = os.path.join(self.root, str(self.i).zfill(5) + ".png")
         fig.savefig(path, bbox_inches='tight')
+        # with open(self.root + "/animation.mp4", 'w') as fp:
+        #     fp.write("Hello\n")
         self.i += 1
         return path
 
@@ -70,7 +72,7 @@ class Grapher:
         return
 
     def animate(self):
-        cmd = f"./src/cmds/animate.sh {self.root} animation.mp4"
+        cmd = f"./cmds/animate.sh {self.root} animation.mp4"
         os.system(cmd)
         return 
 
@@ -84,9 +86,9 @@ class Grapher1d(Grapher):
             fig, ax = plt.subplots(ncols=3)
             self._ticks(ax[1])
             self._ticks(ax[2])
-            ax[0].set_title("Interpolation", fontsize=18)
-            ax[1].set_title("Scoring", fontsize=18)
-            ax[2].set_title("Loss", fontsize=18)
+            ax[0].set_title("Interpolation", fontsize=16)
+            ax[1].set_title("Scoring", fontsize=16)
+            ax[2].set_title("Loss", fontsize=16)
             ax[0].scatter(x[:,0], predy, c=predy, cmap='bwr')
             ax[0].plot(finex[:,0], finepredy, c='grey')
             ax[0].tick_params(which='both', length=0)
@@ -98,11 +100,11 @@ class Grapher1d(Grapher):
                 c = ['grey'] * len(o['round_results']['score'])
                 c[np.argmax(o['round_results']['score'])] = 'g'
                 ax[1].bar(xticks, o['round_results']['score'], color=c)
-                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=18)
+                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=16)
                 ax[2].bar(xticks, o['round_results']['loss'], color=c)
             self.square(ax)
             title_selection = None if selection == -1 else selection
-            fig.suptitle(self.make_title(title_selection), y=.85, fontsize=20)
+            fig.suptitle(self.make_title(title_selection), y=.85, fontsize=18)
             self.save(fig, ax)
             plt.close()
             del fig
@@ -130,22 +132,23 @@ class Grapher2d(Grapher):
             self._ticks(ax[2])
             ax[0].set_xlim((-1.025,1.025))
             ax[0].set_ylim((-1.025,1.025))
-            ax[0].set_title("Interpolation", fontsize=18)
-            ax[1].set_title("Scoring", fontsize=18)
-            ax[2].set_title("Loss", fontsize=18)
+            ax[0].set_title("Interpolation", fontsize=16)
+            ax[1].set_title("Scoring", fontsize=16)
+            ax[2].set_title("Loss", fontsize=16)
             ax[0].scatter(finex[:,0], finex[:,1], c=finepredy, cmap='bwr')
             ax[0].plot(x[:,0], x[:,1], c="g", marker="s", fillstyle='none', mew=2, linestyle='none')
             selection = o['selection_idx']
             if o['round_results'] is not None:
                 # ax[0].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
+                print("LOSS, SCORE")
                 ax[1].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
                 ax[2].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
-                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=18)
+                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=16)
                 self._graph_loss_or_score(o, fig, ax[1], 'score')
                 self._graph_loss_or_score(o, fig, ax[2], 'loss')
             self.square(ax)
             title_selection = None if selection == -1 else self.data.x[selection,:]
-            fig.suptitle(self.make_title(title_selection), y=.85, fontsize=20)
+            fig.suptitle(self.make_title(title_selection), y=.85, fontsize=18)
             self.save(fig, ax)
             plt.close()
             del fig

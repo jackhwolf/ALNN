@@ -5,6 +5,7 @@ import boto3
 import io
 from botocore.exceptions import ClientError
 import time 
+from graphing import graph
 
 def add_result(result):
 		return ResultsManager().add_result(result)
@@ -12,7 +13,8 @@ def add_result(result):
 class ResultsManager:
 
 		def __init__(self):
-			self.main_fname = 'Results/main.pkl'
+			self.main_fname = '../Results/main.pkl'
+			os.makedirs('../Results', exist_ok=True)
 			self.main_key = 'main.pkl'
 			self.buckets = {
 					'main': 'alnn-main-bucket-8nyb87yn8',
@@ -21,11 +23,10 @@ class ResultsManager:
 			}
 
 		def add_result(self, result):
-			print("local")
+			graphed = graph(result)
+			result['local_graphs'] = [graphed]
 			self.add_result_local(result)
-			print("zipped")
 			self.zipdir_local(result)
-			print("cloud")
 			self.add_result_cloud(result)
 
 		def add_result_local(self, result):
@@ -41,7 +42,7 @@ class ResultsManager:
 		def zipdir_local(self, result):
 			lg = result.loc[0]['local_graphs']
 			rootdir = lg['local_graphs_root']
-			cmd = f"./src/cmds/zipdir.sh {rootdir}"
+			cmd = f"./cmds/zipdir.sh {rootdir}"
 			os.system(cmd)
 			return        
 
