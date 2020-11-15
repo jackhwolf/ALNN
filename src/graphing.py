@@ -40,8 +40,9 @@ class Grapher:
         title += f"\nLoss: {res['model_args']['loss_function']}"
         title += f"\nOptimizer: {res['model_args']['optimizer_function']}(LR={res['model_args']['lr']}, WD={res['model_args']['wd']})"
         title += f"\nScoring Heuristic: {res['model_args']['scoring_heuristic']}"
+        title += f"\nRound: {self.i}"
         if selection is not None:
-            title += f"\nSelection: {selection}"
+            title += f", Selection: {selection}"
         return title
 
     def get_interpolations(self):
