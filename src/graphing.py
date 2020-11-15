@@ -144,11 +144,11 @@ class Grapher2d(Grapher):
             if o['round_results'] is not None:
                 # ax[0].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
                 print("LOSS, SCORE")
-                ax[1].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
-                ax[2].plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", fillstyle='none', mew=2)
-                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=16)
+                self._mark_selection(ax[1], selection)
+                self._mark_selection(ax[2], selection)
                 self._graph_loss_or_score(o, fig, ax[1], 'score')
                 self._graph_loss_or_score(o, fig, ax[2], 'loss')
+                ax[2].set_title(f"Loss, max={np.round(np.max(o['round_results']['loss'].values), 3)}", fontsize=16)
             self.square(ax)
             title_selection = None if selection == -1 else self.data.x[selection,:]
             fig.suptitle(self.make_title(title_selection), y=.85, fontsize=18)
@@ -158,6 +158,9 @@ class Grapher2d(Grapher):
         self.animate()
         return self.root
 
+    def _mark_selection(self, ax, selection):
+        ax.plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", ms=12, fillstyle='none', mew=2)
+
     def _graph_loss_or_score(self, o, fig, ax, key):
         ax.set_xlim((-1.025,1.025))
         ax.set_ylim((-1.025,1.025))
@@ -165,7 +168,10 @@ class Grapher2d(Grapher):
         currx = self.data.x[o['round_results']['idx'].values]
         c = o['round_results'][key].values
         cmap = 'Wistia'
-        ax.scatter(currx[:,0], currx[:,1], c=c, cmap=cmap, s=300, marker='s', alpha=0.75)
+        ax.scatter(self.data.x[:,0], self.data.x[:,1], c='grey', s=100, marker='x')
+        cbar = ax.scatter(currx[:,0], currx[:,1], c=c, cmap=cmap, s=300, marker='s', alpha=0.85)
+        if key == 'loss':
+            fig.colorbar(cbar, ax=ax, fraction=0.046, pad=0.04)
 
     def _ticks(self, ax):
         xt = np.linspace(-1, 1, self.data.w)

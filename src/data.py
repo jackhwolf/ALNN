@@ -106,7 +106,7 @@ class SampleData2d(Data):
     def build_data(self, w, h):
         x = np.zeros((w * h, 2))
         y = np.zeros(w * h)
-        boundary = self.get_decision_boundary()
+        boundary_func = self.get_decision_boundary_func()
         w_across = np.linspace(-1., 1., w).astype(np.float32)
         h_across = np.linspace(-1., 1., h).astype(np.float32)
         idx = 0
@@ -114,7 +114,7 @@ class SampleData2d(Data):
             for ha in h_across:
                 x[idx,0] = wa 
                 x[idx,1] = ha
-                y[idx] = boundary(x[idx,:])
+                y[idx] = boundary_func(x[idx,:])
                 idx += 1
         y = (y * 2) - 1
         return x, y
@@ -122,20 +122,20 @@ class SampleData2d(Data):
     def initial_label(self):
         xa = np.min(self.x[:,0])
         xb = np.max(self.x[:,0])
-        yt = np.sort(self.x[:,1])[self.N//2]
-        a = np.where((self.x == (xa, yt)).all(axis=1))
-        b = np.where((self.x == (xb, yt)).all(axis=1))
+        ymid = np.sort(self.x[:,1])[self.N//2]
+        a = np.where((self.x == (xa, ymid)).all(axis=1))
+        b = np.where((self.x == (xb, ymid)).all(axis=1))
         self.mark_labeled(a)
         self.mark_labeled(b)
 
-    def get_decision_boundary(self):
+    def get_decision_boundary_func(self):
         dbm = {}
         dbm['diagonal'] = self.diagonal
         dbm['diagonal_slope'] = self.diagonal_slope
         return dbm[self.decision_boundary_t]
 
     def diagonal(self, x):
-        return x[0] >= x[1]
+        return x[0] < x[1]
 
     def diagonal_slope(self, x, slope=1.25):
-        return x[0] >= (x[1]*slope)
+        return x[0] < (x[1]*slope)
