@@ -15,7 +15,7 @@ class ResultsManager:
 		def __init__(self):
 			self.main_fname = '../Results/main.pkl'
 			os.makedirs('../Results', exist_ok=True)
-			self.main_key = 'main.csv'
+			self.main_key = 'main.json'
 			self.buckets = {
 					'main': 'alnn-main-bucket-8nyb87yn8',
 					'animations': 'alnn-animations-bucket-8nyb87yn8',
@@ -88,7 +88,7 @@ class ResultsManager:
 				tmpfilepath = str(tmpfile.resolve())
 				with open(tmpfilepath, 'wb') as f:
 					s3.download_fileobj(self.buckets['main'], self.main_key, f)
-				main = pd.read_csv(tmpfilepath)
+				main = pd.read_json(tmpfilepath)
 				tmpfile.unlink()
 				return main
 			except ClientError:
@@ -99,7 +99,7 @@ class ResultsManager:
 			tmpfile = Path(f'/tmp/alnn_main_upload_{int(time.time())}')
 			tmpfile.touch()
 			tmpfilepath = str(tmpfile.resolve())
-			main.to_csv(tmpfilepath, index=False)
+			main.to_json(tmpfilepath, index=False)
 			s3.upload_file(tmpfilepath, self.buckets['main'], self.main_key)
 			tmpfile.unlink()
 			self.make_public(self.buckets['main'], self.main_key)
