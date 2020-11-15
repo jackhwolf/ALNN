@@ -4,9 +4,8 @@ import os
 import time
 from collections import OrderedDict
 from distributed import worker_client
-from src.data import get_data
-from src.model import get_model
-from src.graphing import graph
+from data import get_data
+from model import get_model
 
 def run_algorithm(yi):
     algo = Algorithm(yi)
@@ -34,6 +33,7 @@ class Algorithm:
             maximin_selection = round_results.loc[round_results['score'].idxmax()]
             self.data.mark_labeled(maximin_selection['idx'])
             self.train_report_labeled(maximin_selection, round_results[['idx', 'is_true_y', 'loss', 'score']])
+        print("DONE")
         return self.output
 
     def analyze(self):
@@ -43,8 +43,10 @@ class Algorithm:
 
     def explore_unlabeled_points(self):
         futures = []
-        for point in self.data.iterator(self.scoring_heuristic):
-            futures.append(self.explore_unlabeled_point(point))
+        with worker_client() as wc:
+            for point in self.data.iterator(self.scoring_heuristic):
+                futures.append(wc.submit(self.explore_unlabeled_point, point))
+            futures = wc.gather(futures)
         futures = pd.DataFrame(futures)
         return futures
 
@@ -77,6 +79,4 @@ class Algorithm:
         out['timestamp'] = [int(time.time()*1000)]
         out['analytics'] = [self.analyze()]
         out = pd.DataFrame(out)
-        graphed = graph(out)
-        out['local_graphs'] = [graphed]
         return out
