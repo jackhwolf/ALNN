@@ -7,6 +7,7 @@ from distributed import worker_client
 from data import get_data
 from model import get_model
 
+# entry to run the algo given an input dictionary
 def run_algorithm(yi):
     algo = Algorithm(yi)
     return algo.run()
@@ -21,6 +22,16 @@ class Algorithm:
         self.log_ = {k: [] for k in ['round', 'labeled', 'selection_idx', 'loss', 'state_dicts', 'round_results']}
         self.rd = 0
 
+    # explore the data while there are unlabeled points, labeling the 
+    # maximin winner along the way
+    #
+    # - train a model on every combination of (xi, yi), where
+    # xi is an unlabeled feature and yi is a possible label
+    # - for each xi, find the yi that minizes the score, leaving us with 
+    # a set of explored points (xi, yi*)
+    # - find the winner which maximizes the score, (xi*, yi*)
+    # - label the point (xi, true_label(xi)) in the dataset
+    # - train and evaluate a model on the new set of labeled points
     def run(self):
         self.train_report_labeled()
         N_ROUNDS = self.data.N - np.sum(self.data.labeled_mask)
@@ -38,11 +49,13 @@ class Algorithm:
         print("[RUN DONE]")
         return self.output
 
+    # analyze the algorithm log 
     def analyze(self):
         max_loss = np.max(self.log_['loss'])
         avg_loss = np.mean(self.log_['loss'])
         return {"max_loss": max_loss, "avg_loss": avg_loss}
 
+    # iterate over and evaluate the remaining unlabeled points
     def explore_unlabeled_points(self):
         futures = []
         with worker_client() as wc:
@@ -52,6 +65,7 @@ class Algorithm:
         futures = pd.DataFrame(futures)
         return futures
 
+    # evaluate an (xi, yi) combination
     def explore_unlabeled_point(self, point):
         model = get_model(self.yi)
         sd = None if self.scoring_heuristic != 'gradient_heuristic' else self.current_state_dict
@@ -60,6 +74,7 @@ class Algorithm:
         del model
         return point
 
+    # train and evaluate a model on the new set of labeled points
     def train_report_labeled(self, selected_point={}, round_results=None):
         model = get_model(self.yi)
         x, y = self.data.labeled
@@ -74,6 +89,7 @@ class Algorithm:
         self.rd += 1
         return learn
 
+    # clean up the output for the run
     @property
     def output(self):
         out = {}

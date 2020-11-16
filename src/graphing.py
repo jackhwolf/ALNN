@@ -12,6 +12,7 @@ from torch import from_numpy
 from data import get_data
 from model import get_model
 
+# entry to graph data given DataFrame output of run
 def graph(result):
     data = result.loc[0]['input']['data']
     if data == 'SampleData1d':
@@ -32,6 +33,7 @@ class Grapher:
         self.i = 0
         self.axs = []
             
+    # form a title for the current plot
     def make_title(self, selection=None):
         res = self.result.loc[0]['input']
         title = f"Name: {res['experiment_name']}"
@@ -47,6 +49,8 @@ class Grapher:
             title += f", Selection: {selection}"
         return title
 
+    # yield interpolations from each round from the state dictionaries
+    # in the output
     def get_interpolations(self):
         for i, o in self.result.loc[0]['output'].iterrows():
             sd = OrderedDict({k: from_numpy(v) for k, v in o['state_dicts'].items()})
@@ -57,9 +61,11 @@ class Grapher:
             finepredy = self.model.predict(finex).numpy()
             yield o, (x, predy), (finex, finepredy)
 
+    # graph plots and return filename of root firectory
     def graph(self):
         return ""
 
+    # save the current plot
     def save(self, fig, ax):
         path = os.path.join(self.root, str(self.i).zfill(5) + ".png")
         fig.savefig(path, bbox_inches='tight')
@@ -68,12 +74,14 @@ class Grapher:
         self.i += 1
         return path
 
+    # make an axis square
     def square(self, axs):
         for axidx in range(len(axs)):
             ax = axs[axidx]
             ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
         return
 
+    # call shell script to animate frames
     def animate(self):
         cmd = f"./cmds/animate.sh {self.root} animation.mp4"
         os.system(cmd)
@@ -115,6 +123,7 @@ class Grapher1d(Grapher):
         self.animate()
         return self.root
 
+    # clean up the ticks for an axis
     def _ticks(self, ax):
         ax.set_xlim((-1.,1.))
         ax.set_xticks(np.arange(self.data.N))
@@ -160,9 +169,11 @@ class Grapher2d(Grapher):
         self.animate()
         return self.root
 
+    # plot a marker to display the most recent selected point
     def _mark_selection(self, ax, selection):
         ax.plot(self.data.x[selection,0], self.data.x[selection,1], c="g", marker="s", ms=12, fillstyle='none', mew=2)
 
+    # plot a heatmap (kinda) for scoring and loss in 2d
     def _graph_loss_or_score(self, o, fig, ax, key):
         ax.set_xlim((-1.025,1.025))
         ax.set_ylim((-1.025,1.025))
@@ -174,6 +185,7 @@ class Grapher2d(Grapher):
         cbar = ax.scatter(currx[:,0], currx[:,1], c=c, cmap=cmap, s=300, marker='s', alpha=0.85)
         fig_cbar = fig.colorbar(cbar, ax=ax, fraction=0.046, pad=0.04)
 
+    # clean up the ticks for an axis
     def _ticks(self, ax):
         xt = np.linspace(-1, 1, self.data.w)
         yt = np.linspace(-1, 1, self.data.h)

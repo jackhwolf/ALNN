@@ -1,5 +1,6 @@
 import numpy as np 
 
+# entry to get data given dictionary input
 def get_data(kw):
     data = None
     t = kw['data']
@@ -22,6 +23,7 @@ class Data:
         self.labeled_mask = np.array([False] * N)
         self.possible_labels = np.unique(self.y)
 
+    # yield all (xi, yi) combinations
     def iterator(self, scoring_heuristic):
         for idx in np.where(~self.labeled_mask)[0]:
             x, true_y = self.x[[idx],:], self.y[idx]
@@ -38,16 +40,19 @@ class Data:
                 out['is_true_y'] = possible_label == true_y[0]
                 yield out
 
+    # return a copy of the dataset with new x,y popped on
     def pop_on(self, x, y):
         lx, ly = self.labeled
         lx = np.append(lx, x, axis=0)
         ly = np.append(ly, y.reshape(-1,1), axis=0)
         return lx, ly
 
+    # are there unlabeled points remaining
     @property
     def has_unlabeled(self):
         return len(np.where(~self.labeled_mask)[0]) != 0
 
+    # set the contents of the dataset
     def set_data(self, x, finex, y):
         if len(x.shape) == 1:
             x = x.reshape(-1, 1)
@@ -61,14 +66,17 @@ class Data:
         self.possible_labels = np.unique(self.y)
         return
 
+    # get labeled x, y
     @property
     def labeled(self):
         return self.x[self.labeled_mask].copy(), self.y[self.labeled_mask].copy()
 
+    # get unlabeled x, y
     @property
     def unlabeled(self):
         return self.x[~self.labeled_mask].copy(), self.y[~self.labeled_mask].copy()
 
+    # mark an index as labeled
     def mark_labeled(self, idx):
         self.labeled_mask[idx] = True
         return
@@ -85,6 +93,7 @@ class SampleData1d(Data):
         self.set_data(x, finex, y)
         self.initial_label()
 
+    # set the intial labeled points
     def initial_label(self):
         a = np.where(self.x == np.min(self.x))[0][0]
         b = np.where(self.x == np.max(self.x))[0][0]
@@ -103,6 +112,7 @@ class SampleData2d(Data):
         self.set_data(x, finex, y)
         self.initial_label()
 
+    # build the 2d x, y
     def build_data(self, w, h):
         x = np.zeros((w * h, 2))
         y = np.zeros(w * h)
@@ -119,6 +129,7 @@ class SampleData2d(Data):
         y = (y * 2) - 1
         return x, y
                 
+    # set the intial labeled points
     def initial_label(self):
         xa = np.min(self.x[:,0])
         xb = np.max(self.x[:,0])
@@ -128,14 +139,17 @@ class SampleData2d(Data):
         self.mark_labeled(a)
         self.mark_labeled(b)
 
+    # determine how to calculate y(x)
     def get_decision_boundary_func(self):
         dbm = {}
         dbm['diagonal'] = self.diagonal
         dbm['diagonal_slope'] = self.diagonal_slope
         return dbm[self.decision_boundary_t]
 
+    # diagonal decision boundary 
     def diagonal(self, x):
         return x[0] < x[1]
 
+    # diagonal decision boundary with some slope
     def diagonal_slope(self, x, slope=1.25):
         return x[0] < (x[1]*slope)

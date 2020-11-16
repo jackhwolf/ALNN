@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim 
 import numpy as np
 
+# entry to get model given dictionary input
 def get_model(kw):
         return Model(**kw['model_args'])
 
@@ -24,6 +25,7 @@ class Model(nn.Module):
         self.current_loss = None
         self.current_state_dict = None
 
+    # learn an (x,y) dataset and return performance and parameters in dict
     def learn(self, x, y, sd=None):
         x = torch.from_numpy(x.astype(np.float32))
         y = torch.from_numpy(y.astype(np.float32))
@@ -48,15 +50,18 @@ class Model(nn.Module):
         out['state_dict'] = self.current_state_dict
         return out
 
+    # forward pass on x
     def forward(self, x):
         relu = self.l1(x).clamp(min=0)
         return self.l2(relu)
 
+    # forward pass with no backprop on x
     def predict(self, x):
         x = torch.from_numpy(x.astype(np.float32))
         with torch.no_grad():
             return self.forward(x)
 
+    # calculate score of model 
     @property
     def score(self):
         if self.scoring_heuristic == 'norm_heuristic':
@@ -64,6 +69,7 @@ class Model(nn.Module):
         elif self.scoring_heuristic == 'gradient_heuristic':
             return self.gradient_heuristic()
 
+    # calculate sum of norms of weights
     def norm_heuristic(self):
         norm = 0
         l1 = self.l1.weight.detach().numpy()
@@ -72,6 +78,7 @@ class Model(nn.Module):
         norm += np.linalg.norm(l2)
         return norm
 
+    # calculate norm of gradient after one forward pass
     def gradient_heuristic(self):
         loss = self.current_loss.detach().numpy()
         norm = np.linalg.norm(loss)

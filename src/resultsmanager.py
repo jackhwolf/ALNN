@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 import time 
 from graphing import graph
 
+# entry to store result given DataFrame output
 def add_result(result):
 		return ResultsManager().add_result(result)
 
@@ -22,6 +23,7 @@ class ResultsManager:
 					'zipfiles': 'alnn-zipfiles-bucket-8nyb87yn8'
 			}
 
+		# call helpers to store result
 		def add_result(self, result):
 			graphed = graph(result)
 			result['local_graphs'] = [graphed]
@@ -30,6 +32,7 @@ class ResultsManager:
 			self.add_result_cloud(result)
 			self.rm_results_local(result)
 
+		# store result locally
 		def add_result_local(self, result):
 			if os.path.exists(self.main_fname):
 					data = pd.read_pickle(self.main_fname)
@@ -40,6 +43,7 @@ class ResultsManager:
 					result.to_pickle(self.main_fname)
 			return
 
+		# call shell script to zip local results dir
 		def zipdir_local(self, result):
 			lg = result.loc[0]['local_graphs']
 			rootdir = lg['local_graphs_root']
@@ -47,6 +51,7 @@ class ResultsManager:
 			os.system(cmd)
 			return  
 
+		# call shell script to remove local results dir
 		def rm_results_local(self, result):
 			lg = result.loc[0]['local_graphs']
 			rootdir = lg['local_graphs_root']
@@ -54,7 +59,7 @@ class ResultsManager:
 			os.system(cmd)
 			return  
 
-
+		# upload result (zip, anim, and new row to main) in s3
 		def add_result_cloud(self, result):
 			zk, ak = self.upload_zipfile_animation(result)
 			result['cloud_graphs'] = [{'zip_key': zk, 'animation_key': ak}]
@@ -67,10 +72,12 @@ class ResultsManager:
 			self.upload_main(main)
 			return
 
+		# get an s3 client
 		def s3client(self):
 			client = boto3.client("s3")
 			return client
 
+		# push file to s3
 		def upload_zipfile_animation(self, result):
 			s3 = self.s3client()
 			ts = result.loc[0]['timestamp']
@@ -84,11 +91,13 @@ class ResultsManager:
 			self.make_public(self.buckets['animations'], anim_key)
 			return zip_key, anim_key
 
+		# make a file public
 		def make_public(self, bucket, key):
 			res = boto3.resource("s3")
 			res.Object(bucket, key).Acl().put(ACL='public-read') # pylint: disable=no-member
 			return True
 
+		# download the main results file from s3
 		def download_main(self):
 			s3 = self.s3client()
 			try:
@@ -103,6 +112,7 @@ class ResultsManager:
 			except ClientError:
 				return None
 
+		# upload the main results file to s3
 		def upload_main(self, main):
 			s3 = self.s3client()
 			tmpfile = Path(f'/tmp/alnn_main_upload_{int(time.time())}')
