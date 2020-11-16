@@ -37,7 +37,7 @@ class Model(nn.Module):
         if sd is not None and self.scoring_heuristic == 'gradient_heuristic':
             self.load_state_dict(sd)
             epochs = 1
-        for i in range(self.epochs):
+        for i in range(epochs):
             pred = self.forward(x)
             loss = loss_func(pred, y)
             self.current_loss = loss.item()
