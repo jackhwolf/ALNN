@@ -25,15 +25,17 @@ class Algorithm:
         self.train_report_labeled()
         N_ROUNDS = self.data.N - np.sum(self.data.labeled_mask)
         while self.data.has_unlabeled:
-            print(self.rd, " / ", N_ROUNDS, "\n======================")
+            print("[START ROUND]", self.rd, " / ", N_ROUNDS)
             round_results = self.explore_unlabeled_points()
             idxs = np.unique(round_results['idx'])
             idxmins = [round_results[round_results['idx'] == idx]['score'].idxmin() for idx in idxs]
             round_results = round_results.loc[idxmins]
             maximin_selection = round_results.loc[round_results['score'].idxmax()]
             self.data.mark_labeled(maximin_selection['idx'])
-            self.train_report_labeled(maximin_selection, round_results[['idx', 'is_true_y', 'loss', 'score']])
-        print("DONE")
+            learn = self.train_report_labeled(maximin_selection, round_results[['idx', 'is_true_y', 'loss', 'score']])
+            print("[END ROUND]", self.rd, " / ", N_ROUNDS, f"LOSS={learn['loss']}")
+            print("==================================")
+        print("[RUN DONE]")
         return self.output
 
     def analyze(self):
@@ -70,6 +72,7 @@ class Algorithm:
         self.log_['state_dicts'].append(OrderedDict({k: v.numpy() for k, v in learn['state_dict'].items()}))
         self.log_['round_results'].append(round_results)
         self.rd += 1
+        return learn
 
     @property
     def output(self):
