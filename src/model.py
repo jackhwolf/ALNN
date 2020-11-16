@@ -90,3 +90,10 @@ class Model(nn.Module):
         norm = np.linalg.norm(wi_grads)
         return norm
 
+# if __name__ == "__main__":
+#     import numpy as np 
+
+#     m = Model(1, 10, 1, 'MSELoss', 'Adam', 1e-3, 1e-5, 10, 'norm_heuristic')
+#     m.learn(np.array([[1], [2]]), np.array([[-1], [1]]))
+#     print(m.norm_heuristic())
+#     print(m.gradient_heuristic())
