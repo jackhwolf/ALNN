@@ -58,7 +58,7 @@ class Model(nn.Module):
 
     # forward pass with no backprop on x
     def predict(self, x):
-        x = torch.from_numpy(x.astype(np.float32))
+        x = torch.from_numpy(x.astype(np.float32)).to(self.dev)
         with torch.no_grad():
             return self.forward(x)
 
