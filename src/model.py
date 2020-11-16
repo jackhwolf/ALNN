@@ -24,11 +24,12 @@ class Model(nn.Module):
         self.l2 = nn.Linear(self.hidden_nodes, self.dims_out)
         self.current_loss = None
         self.current_state_dict = None
+        self.dev = torch.device('cpu:0')
 
     # learn an (x,y) dataset and return performance and parameters in dict
     def learn(self, x, y, sd=None):
-        x = torch.from_numpy(x.astype(np.float32))
-        y = torch.from_numpy(y.astype(np.float32))
+        x = torch.from_numpy(x.astype(np.float32)).to(self.dev)
+        y = torch.from_numpy(y.astype(np.float32)).to(self.dev)
         loss_func = getattr(nn, self.loss_func)()
         optimizer = getattr(optim, self.optim_func)
         optimizer = optimizer(self.parameters(), **self.optim_params)
@@ -39,9 +40,9 @@ class Model(nn.Module):
         for i in range(self.epochs):
             pred = self.forward(x)
             loss = loss_func(pred, y)
+            self.current_loss = loss.item()
             optimizer.zero_grad()
             loss.backward()
-            self.current_loss = loss
             optimizer.step()
         self.current_state_dict = self.state_dict()
         out = {}
@@ -80,6 +81,12 @@ class Model(nn.Module):
 
     # calculate norm of gradient after one forward pass
     def gradient_heuristic(self):
-        loss = self.current_loss.detach().numpy()
-        norm = np.linalg.norm(loss)
+        loss = self.current_loss
+        wi_grads = np.array([])
+        for w in [self.l1, self.l2]:
+            w = w.weight.grad.numpy().flatten()
+            wi_grads = np.append(wi_grads, w)
+        wi_grads *= loss
+        norm = np.linalg.norm(wi_grads)
         return norm
+
