@@ -21,6 +21,7 @@ class Algorithm:
         self.current_state_dict = None
         self.log_ = {k: [] for k in ['round', 'labeled', 'selection_idx', 'loss', 'state_dicts', 'round_results']}
         self.rd = 0
+        self.maxloss = -1
 
     # explore the data while there are unlabeled points, labeling the 
     # maximin winner along the way
@@ -38,6 +39,8 @@ class Algorithm:
         while self.data.has_unlabeled:
             print("[START ROUND]", self.rd, " / ", N_ROUNDS)
             round_results = self.explore_unlabeled_points()
+            if np.max(round_results['loss']) > self.maxloss:
+                self.maxloss = np.max(round_results['loss'])
             idxs = np.unique(round_results['idx'])
             idxmins = [round_results[round_results['idx'] == idx]['score'].idxmin() for idx in idxs]
             round_results = round_results.loc[idxmins]
@@ -51,15 +54,9 @@ class Algorithm:
 
     # analyze the algorithm log 
     def analyze(self):
-        max_loss = -1
-        for i, v in self.log_.iterrows():
-            if not v['round_results']:
-                continue
-            maxl = np.max(v['round_results']['loss'])
-            if maxl > max_loss:
-                max_loss = maxl
         avg_loss = np.mean(self.log_['loss'])
-        return {"max_loss": max_loss, "avg_loss": avg_loss}
+        return {"max_loss": self.maxloss, "avg_loss": avg_loss}
+
 
     # iterate over and evaluate the remaining unlabeled points
     def explore_unlabeled_points(self):
