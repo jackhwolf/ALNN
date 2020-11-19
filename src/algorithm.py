@@ -57,7 +57,6 @@ class Algorithm:
         avg_loss = np.mean(self.log_['loss'])
         return {"max_loss": self.maxloss, "avg_loss": avg_loss}
 
-
     # iterate over and evaluate the remaining unlabeled points
     def explore_unlabeled_points(self):
         futures = []

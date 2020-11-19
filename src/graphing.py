@@ -146,7 +146,7 @@ class Grapher2d(Grapher):
             self._ticks(ax[2])
             ax[0].set_xlim((-1.025,1.025))
             ax[0].set_ylim((-1.025,1.025))
-            ax[0].set_title("Interpolation", fontsize=16)
+            ax[0].set_title(f"Interpolation, loss={np.round(o['loss'],3)}", fontsize=16)
             ax[1].set_title("Scoring", fontsize=16)
             ax[2].set_title("Loss", fontsize=16)
             cbar = ax[0].scatter(finex[:,0], finex[:,1], c=finepredy, cmap='bwr')
