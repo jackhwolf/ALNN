@@ -27,6 +27,7 @@ class ResultsManager:
 		def add_result(self, result):
 			graphed = graph(result)
 			result['local_graphs'] = [graphed]
+			del result['output']
 			self.add_result_local(result)
 			self.zipdir_local(result)
 			self.add_result_cloud(result)

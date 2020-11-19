@@ -51,7 +51,13 @@ class Algorithm:
 
     # analyze the algorithm log 
     def analyze(self):
-        max_loss = np.max(self.log_['loss'])
+        max_loss = -1
+        for i, v in self.log_.iterrows():
+            if not v['round_results']:
+                continue
+            maxl = np.max(v['round_results']['loss'])
+            if maxl > max_loss:
+                max_loss = maxl
         avg_loss = np.mean(self.log_['loss'])
         return {"max_loss": max_loss, "avg_loss": avg_loss}
 

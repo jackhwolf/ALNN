@@ -43,6 +43,7 @@ class Grapher:
         title += f"\nArchitecture: {model_title}"
         title += f"\nLoss: {res['model_args']['loss_function']}"
         title += f"\nOptimizer: {res['model_args']['optimizer_function']}(LR={res['model_args']['lr']}, WD={res['model_args']['wd']})"
+        title += f"\nEpochs: {res['model_args']['epochs']}"
         title += f"\nScoring Heuristic: {res['model_args']['scoring_heuristic']}"
         title += f"\nRound: {self.i}"
         if selection is not None:

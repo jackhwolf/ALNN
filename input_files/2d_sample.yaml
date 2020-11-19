@@ -1,4 +1,4 @@
-experiment_name: 2d_sample
+experiment_name: 2d_sample_1118
 
 data: SampleData2d                     
 data_args:
