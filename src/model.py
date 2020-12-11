@@ -7,6 +7,27 @@ import numpy as np
 def get_model(kw):
         return Model(**kw['model_args'])
 
+# https://raw.githubusercontent.com/Bjarten/early-stopping-pytorch/master/pytorchtools.py
+class EarlyStopper:
+
+    def __init__(self, patience=10, delta=1e-7):
+        self.patience = patience
+        self.delta = delta
+        self.prev_val = None
+        self.counter = 0
+
+    def __call__(self, val):
+        if self.prev_val is None:
+            self.prev_val = val
+            return False
+        else:
+            improvement = self.prev_val - val
+            self.counter += 1 if improvement < self.delta else 0
+        if self.counter >= self.patience:
+            return True
+        self.prev_val = val
+        return False
+
 class Model(nn.Module):
 
     def __init__(self, dimsin, hidden_nodes, dimsout, loss_function, \
@@ -34,6 +55,7 @@ class Model(nn.Module):
         optimizer = getattr(optim, self.optim_func)
         optimizer = optimizer(self.parameters(), **self.optim_params)
         epochs = self.epochs
+        stopper = EarlyStopper()
         if sd is not None and self.scoring_heuristic == 'gradient_heuristic':
             self.load_state_dict(sd)
             epochs = 1
@@ -44,6 +66,9 @@ class Model(nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            if epochs != 1 and stopper(self.current_loss):
+                print(f"Stopped @ {i} / {epochs}")
+                break
         self.current_state_dict = self.state_dict()
         out = {}
         out['loss'] = loss.item()
@@ -90,10 +115,3 @@ class Model(nn.Module):
         norm = np.linalg.norm(wi_grads)
         return norm
 
-# if __name__ == "__main__":
-#     import numpy as np 
-
-#     m = Model(1, 10, 1, 'MSELoss', 'Adam', 1e-3, 1e-5, 10, 'norm_heuristic')
-#     m.learn(np.array([[1], [2]]), np.array([[-1], [1]]))
-#     print(m.norm_heuristic())
-#     print(m.gradient_heuristic())

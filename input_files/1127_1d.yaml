@@ -1,8 +1,8 @@
-experiment_name: 1127_1d
+experiment_name: 1210_1d_earlystop_test
 
 data: SampleData1d
 data_args:
-  n_threshold: 6
+  n_threshold: 4
   threshold_length: 5
 
 model_args:
@@ -14,4 +14,4 @@ model_args:
   lr: 1e-3                    
   wd: 1e-5                 
   epochs: 250000
-  scoring_heuristic: [norm_heuristic, gradient_heuristic]  
+  scoring_heuristic: norm_heuristic
