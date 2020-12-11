@@ -1,0 +1,17 @@
+experiment_name: 1127_1d
+
+data: SampleData1d
+data_args:
+  n_threshold: 6
+  threshold_length: 5
+
+model_args:
+  dimsin: 1
+  hidden_nodes: 1000
+  dimsout: 1
+  loss_function: MSELoss
+  optimizer_function: Adam
+  lr: 1e-3                    
+  wd: 1e-5                 
+  epochs: 250000
+  scoring_heuristic: [norm_heuristic, gradient_heuristic]  

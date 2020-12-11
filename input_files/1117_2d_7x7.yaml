@@ -1,0 +1,18 @@
+experiment_name: 1117_2d_7x7
+
+data: SampleData2d                     
+data_args:
+  h: 7
+  w: 7
+  decision_boundary_t: diagonal
+
+model_args:
+  dimsin: 2
+  hidden_nodes: 3000
+  dimsout: 1
+  loss_function: MSELoss
+  optimizer_function: Adam
+  lr: [1e-2, 1e-3, 1e-4]                           
+  wd: 1e-5                 
+  epochs: [150000, 250000]                         
+  scoring_heuristic: gradient_heuristic

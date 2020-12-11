@@ -15,4 +15,4 @@ model_args:
   lr: 1e-4                           
   wd: 1e-5                 
   epochs: 1                          
-  scoring_heuristic: norm_heuristic  
+  scoring_heuristic: [norm_heuristic, gradient_heuristic]

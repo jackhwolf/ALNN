@@ -89,7 +89,13 @@ class SampleData1d(Data):
         super().__init__(self.n_threshold * self.threshold_length, 1)
         x = np.linspace(-1, 1, self.N).astype(np.float32)
         finex = np.linspace(-1, 1, 100).astype(np.float32)
-        y = (np.arange(self.N) % 2 * 2 - 1).astype(np.float32)
+        y = np.arange(self.N).astype(np.float32)
+        back = 0
+        label = -1
+        for i in range(threshold_length, self.N + threshold_length, threshold_length):
+            y[back:i] = label
+            back = i
+            label *= -1
         self.set_data(x, finex, y)
         self.initial_label()
 

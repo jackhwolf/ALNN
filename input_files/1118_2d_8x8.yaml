@@ -1,0 +1,18 @@
+experiment_name: 1118_2d_8x8
+
+data: SampleData2d                     
+data_args:
+  h: 8
+  w: 8
+  decision_boundary_t: diagonal
+
+model_args:
+  dimsin: 2
+  hidden_nodes: [1000, 3000]
+  dimsout: 1
+  loss_function: MSELoss
+  optimizer_function: Adam
+  lr: [1e-3, 1e-4]                           
+  wd: 1e-5                 
+  epochs: 350000
+  scoring_heuristic: gradient_heuristic
