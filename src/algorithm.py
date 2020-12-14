@@ -46,7 +46,7 @@ class Algorithm:
             round_results = round_results.loc[idxmins]
             maximin_selection = round_results.loc[round_results['score'].idxmax()]
             self.data.mark_labeled(maximin_selection['idx'])
-            learn = self.train_report_labeled(maximin_selection, round_results[['idx', 'is_true_y', 'loss', 'score']])
+            learn = self.train_report_labeled(maximin_selection, round_results[['idx', 'is_true_y', 'loss', 'score', 'trained_for']])
             print("[END ROUND]", self.rd, " / ", N_ROUNDS, f"LOSS={learn['loss']}")
             print("==================================")
         print("[RUN DONE]")
@@ -88,8 +88,8 @@ class Algorithm:
         self.log_['selection_idx'].append(selected_point.get('idx', -1))
         self.log_['loss'].append(learn['loss'])
         self.log_['state_dicts'].append(OrderedDict({k: v.numpy() for k, v in learn['state_dict'].items()}))
-        self.log_['round_results'].append(round_results)
-        self.log_['trained_for'].append(learn['trained_for'])
+        # self.log_['round_results'].append(round_results)
+        self.log_['trained_for'].append(None if round_results is None else np.mean(round_results['trained_for']))
         self.rd += 1
         return learn
 
