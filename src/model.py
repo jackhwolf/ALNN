@@ -10,7 +10,7 @@ def get_model(kw):
 # https://raw.githubusercontent.com/Bjarten/early-stopping-pytorch/master/pytorchtools.py
 class EarlyStopper:
 
-    def __init__(self, patience=100, delta=1e-8):
+    def __init__(self, patience, delta):
         self.patience = patience
         self.delta = delta
         self.prev_val = None
@@ -31,7 +31,8 @@ class EarlyStopper:
 class Model(nn.Module):
 
     def __init__(self, dimsin, hidden_nodes, dimsout, loss_function, \
-                        optimizer_function, lr, wd, epochs, scoring_heuristic):
+                        optimizer_function, lr, wd, epochs, scoring_heuristic, \
+                        early_stop_patience, early_stop_delta):
         super().__init__()
         self.dims_in = int(dimsin)
         self.hidden_nodes = int(hidden_nodes)
@@ -41,6 +42,8 @@ class Model(nn.Module):
         self.optim_params = {'lr': float(lr), 'weight_decay': float(wd)}
         self.epochs = epochs
         self.scoring_heuristic = scoring_heuristic
+        self.early_stop_patience = early_stop_patience
+        self.early_stop_delta = early_stop_delta
         self.l1 = nn.Linear(self.dims_in, self.hidden_nodes)
         self.l2 = nn.Linear(self.hidden_nodes, self.dims_out)
         self.current_loss = None
@@ -55,7 +58,7 @@ class Model(nn.Module):
         optimizer = getattr(optim, self.optim_func)
         optimizer = optimizer(self.parameters(), **self.optim_params)
         epochs = self.epochs
-        stopper = EarlyStopper()
+        stopper = EarlyStopper(self.early_stop_patience, self.early_stop_delta)
         if sd is not None and self.scoring_heuristic == 'gradient_heuristic':
             self.load_state_dict(sd)
             epochs = 1
