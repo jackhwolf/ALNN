@@ -51,7 +51,7 @@ class Model(nn.Module):
         self.dev = torch.device('cpu:0')
 
     # learn an (x,y) dataset and return performance and parameters in dict
-    def learn(self, x, y, sd=None):
+    def learn(self, x, y, sd=None, allow_earlystop=True):
         x = torch.from_numpy(x.astype(np.float32)).to(self.dev)
         y = torch.from_numpy(y.astype(np.float32)).to(self.dev)
         loss_func = getattr(nn, self.loss_func)()
@@ -69,7 +69,7 @@ class Model(nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if epochs != 1 and stopper(self.current_loss):
+            if epochs != 1 and stopper(self.current_loss) and allow_earlystop:
                 print(f"Stopped @ {i} / {epochs}")
                 break
         self.current_state_dict = self.state_dict()

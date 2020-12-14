@@ -1,4 +1,4 @@
-experiment_name: earlystop_testing
+experiment_name: earlystop_testing_only_explore
 
 data: SampleData1d
 data_args:
@@ -15,5 +15,5 @@ model_args:
   wd: 1e-5                 
   epochs: 250000
   scoring_heuristic: norm_heuristic
-  early_stop_patience: [500, 1000, 2000]
-  early_stop_delta: [1e-5, 1e-6, 1e-7, 1e-8]
+  early_stop_patience: 750
+  early_stop_delta: 1e-8

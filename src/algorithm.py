@@ -81,7 +81,7 @@ class Algorithm:
     def train_report_labeled(self, selected_point={}, round_results=None):
         model = get_model(self.yi)
         x, y = self.data.labeled
-        learn = model.learn(x, y)
+        learn = model.learn(x, y, allow_earlystop=False)
         self.current_state_dict = learn['state_dict']
         self.log_['round'].append(self.rd)
         self.log_['labeled'].append(self.data.labeled_mask.copy())
