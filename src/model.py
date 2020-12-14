@@ -11,8 +11,8 @@ def get_model(kw):
 class EarlyStopper:
 
     def __init__(self, patience, delta):
-        self.patience = patience
-        self.delta = delta
+        self.patience = int(patience)
+        self.delta = float(delta)
         self.prev_val = None
         self.counter = 0
 
