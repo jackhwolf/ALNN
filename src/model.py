@@ -10,7 +10,7 @@ def get_model(kw):
 # https://raw.githubusercontent.com/Bjarten/early-stopping-pytorch/master/pytorchtools.py
 class EarlyStopper:
 
-    def __init__(self, patience=10, delta=1e-7):
+    def __init__(self, patience=100, delta=1e-8):
         self.patience = patience
         self.delta = delta
         self.prev_val = None
