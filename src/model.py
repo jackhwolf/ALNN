@@ -77,6 +77,7 @@ class Model(nn.Module):
         out['loss'] = loss.item()
         out['score'] = self.score
         out['state_dict'] = self.current_state_dict
+        out['trained_for'] = i
         return out
 
     # forward pass on x

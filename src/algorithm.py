@@ -19,7 +19,7 @@ class Algorithm:
         self.scoring_heuristic = self.yi['model_args']['scoring_heuristic']
         self.data = get_data(self.yi)
         self.current_state_dict = None
-        self.log_ = {k: [] for k in ['round', 'labeled', 'selection_idx', 'loss', 'state_dicts', 'round_results']}
+        self.log_ = {k: [] for k in ['round', 'labeled', 'selection_idx', 'loss', 'state_dicts', 'round_results', 'trained_for']}
         self.rd = 0
         self.maxloss = -1
 
@@ -55,7 +55,8 @@ class Algorithm:
     # analyze the algorithm log 
     def analyze(self):
         avg_loss = np.mean(self.log_['loss'])
-        return {"max_loss": self.maxloss, "avg_loss": avg_loss}
+        avg_trained_for = np.mean(self.log_['trained_for'])
+        return {"max_loss": self.maxloss, "avg_loss": avg_loss, "avg_trained_for": avg_trained_for}
 
     # iterate over and evaluate the remaining unlabeled points
     def explore_unlabeled_points(self):
@@ -88,6 +89,7 @@ class Algorithm:
         self.log_['loss'].append(learn['loss'])
         self.log_['state_dicts'].append(OrderedDict({k: v.numpy() for k, v in learn['state_dict'].items()}))
         self.log_['round_results'].append(round_results)
+        self.log_['trained_for'].append(learn['trained_for'])
         self.rd += 1
         return learn
 
